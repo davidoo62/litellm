@@ -2248,7 +2248,7 @@ def test_deployments_by_pattern(model_list):
 def test_pattern_match_deployment_set_model_name(user_request_model, model_name, litellm_model, expected_model):
     from re import Match
 
-    from litellm.router_utils.pattern_match_deployments import PatternMatchRouter
+    from litellm.litellm_core_utils.pattern_match_deployments import PatternMatchRouter
 
     pattern_router = PatternMatchRouter()
 

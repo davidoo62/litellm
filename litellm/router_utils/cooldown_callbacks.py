@@ -9,17 +9,14 @@ import litellm
 from litellm._logging import verbose_logger
 
 if TYPE_CHECKING:
-    from litellm.router import Router as _Router
-
-    LitellmRouter = _Router
     from litellm.integrations.prometheus import PrometheusLogger
+    from litellm.router_api import RoutingContext
 else:
-    LitellmRouter = Any
     PrometheusLogger = Any
 
 
 async def router_cooldown_event_callback(
-    litellm_router_instance: LitellmRouter,
+    ctx: "RoutingContext",
     deployment_id: str,
     exception_status: str | int,
     cooldown_time: float | None,
@@ -31,7 +28,7 @@ async def router_cooldown_event_callback(
     - Increments cooldown metric for deployment on Prometheus
     """
     verbose_logger.debug("In router_cooldown_event_callback - updating prometheus")
-    _deployment: Final = litellm_router_instance.get_deployment(model_id=deployment_id)
+    _deployment: Final = ctx.registry().deployment(deployment_id)
     if _deployment is None:
         verbose_logger.warning(
             "in router_cooldown_event_callback but _deployment is None for deployment_id=%s. Doing nothing",

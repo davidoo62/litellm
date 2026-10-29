@@ -10054,7 +10054,7 @@ def test_pattern_match_router_remove_deployment():
     remove_deployment must drop only the deployment with the given model id and
     delete patterns whose deployment list becomes empty.
     """
-    from litellm.router_utils.pattern_match_deployments import PatternMatchRouter
+    from litellm.litellm_core_utils.pattern_match_deployments import PatternMatchRouter
 
     pattern_router = PatternMatchRouter()
     pattern_router.add_pattern(
@@ -17451,7 +17451,7 @@ def test_model_group_info_reasoning_efforts_are_unknown_for_an_operator_declared
     operator wrote, so a mode they set themselves reads back exactly like one the map supplied. Only
     a mode the map supplied marks the deployment as known. An off-map deployment carrying an
     operator mode remains unknown and must keep the whole group's level support unknown."""
-    from litellm.router_utils.reasoning_effort_capability import resolve_supported_reasoning_efforts
+    from litellm.litellm_core_utils.reasoning_effort_capability import resolve_supported_reasoning_efforts
 
     mapped_model = "openai/gpt-5.6-sol"
     expected = resolve_supported_reasoning_efforts(
@@ -21971,7 +21971,7 @@ def test_router_retry_skip_stamp_feeds_deployment_ids_to_skip_on_retry(
     ],
 )
 def test_router_as_retry_skipped_deployment_ids_keeps_only_a_tuple_of_strings(value, expected):
-    from litellm.router_utils.common_utils import as_retry_skipped_deployment_ids
+    from litellm.litellm_core_utils.routing_common_utils import as_retry_skipped_deployment_ids
 
     assert as_retry_skipped_deployment_ids(value) == expected
 

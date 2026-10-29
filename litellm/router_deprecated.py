@@ -40,11 +40,11 @@ if TYPE_CHECKING:
 
     from litellm.caching.caching import RedisCache
     from litellm.litellm_core_utils.litellm_logging import Logging as LiteLLMLogging
+    from litellm.litellm_core_utils.ptu_shares import PTUTeamCeiling
     from litellm.llms.custom_httpx.http_handler import AsyncHTTPHandler
     from litellm.router import Router
     from litellm.router_strategy.budget_limiter import RouterBudgetLimiting
     from litellm.router_utils.kubernetes_pod_discovery import KubernetesPodDiscovery
-    from litellm.router_utils.ptu_shares import PTUTeamCeiling
     from litellm.types.router import (
         CustomRoutingStrategyBase,
         Deployment,

@@ -29,11 +29,11 @@ if TYPE_CHECKING:
     from semantic_router.routers import SemanticRouter
     from semantic_router.routers.base import Route
 
-    from litellm.router import Router
+    from litellm.router_api import RoutingContext
     from litellm.router_strategy.auto_router.litellm_encoder import LiteLLMRouterEncoder
     from litellm.types.router import PreRoutingHookResponse
 else:
-    Router = Any
+    RoutingContext = Any
     PreRoutingHookResponse = Any
     Route = Any
     SemanticRouter = Any
@@ -61,7 +61,7 @@ class AutoRouter(CustomLogger):
         model_name: str,
         default_model: str,
         embedding_model: str,
-        litellm_router_instance: "Router",
+        ctx: "RoutingContext",
         auto_router_config_path: str | None = None,
         auto_router_config: str | None = None,
         max_input_chars: int = DEFAULT_AUTO_ROUTER_MAX_INPUT_CHARS,
@@ -75,7 +75,7 @@ class AutoRouter(CustomLogger):
             auto_router_config: The config to use for the auto-router. You can either use this or auto_router_config_path, not both.
             default_model: The default model to use if no route is found.
             embedding_model: The embedding model to use for the auto-router.
-            litellm_router_instance: The instance of the LiteLLM Router.
+            ctx: The routing context of the owning router.
             max_input_chars: Longest prompt, in characters, handed to the embedding model. Longer
                 prompts are cut to this length so an embedding context window far smaller than the
                 routed model's never fails the request.
@@ -95,9 +95,9 @@ class AutoRouter(CustomLogger):
         self.default_model = default_model
         self.embedding_model: str = embedding_model
         self.max_input_chars: int = max_input_chars
-        self.litellm_router_instance: Router = litellm_router_instance
+        self.ctx: Final = ctx
         self.encoder: LiteLLMRouterEncoder = LiteLLMRouterEncoder(
-            litellm_router_instance=litellm_router_instance,
+            ctx=ctx,
             model_name=embedding_model,
             max_input_chars=max_input_chars,
         )

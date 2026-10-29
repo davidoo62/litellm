@@ -19,12 +19,12 @@ from typing import TYPE_CHECKING, Final
 
 import litellm
 from litellm._logging import verbose_proxy_logger
+from litellm.litellm_core_utils.routing_common_utils import resolve_model_group_alias
 from litellm.litellm_core_utils.token_counter import served_openai_models, unresolved_tokenizer_model
 from litellm.responses.litellm_completion_transformation.compaction_items import (
     billable_input_since_newest_compaction,
     holds_compaction_summary,
 )
-from litellm.router_utils.common_utils import resolve_model_group_alias
 from litellm.rust_bridge import runtime
 from litellm.rust_bridge.catalog import Route, RouteContext
 from litellm.rust_bridge.token_counter import (
