@@ -7,12 +7,12 @@ from litellm.repositories.database import Database
 
 
 @pytest.mark.asyncio
-async def test_database_disconnects_even_when_stopping_background_tasks_fails() -> None:
+async def test_closing_the_database_closes_prisma() -> None:
     prisma: Final = MagicMock()
-    prisma.stop_background_tasks = AsyncMock(side_effect=RuntimeError("watchdog failed"))
-    prisma.disconnect = AsyncMock()
+    prisma.aclose = AsyncMock()
+    database: Final = await Database.open(prisma)
 
-    with pytest.raises(RuntimeError, match="watchdog failed"):
-        await Database(prisma=prisma).aclose()
+    prisma.aclose.assert_not_awaited()
+    await database.aclose()
 
-    prisma.disconnect.assert_awaited_once()
+    prisma.aclose.assert_awaited_once()

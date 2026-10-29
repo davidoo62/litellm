@@ -6682,6 +6682,13 @@ class PrismaClient:
                 "Shutdown stopped waiting for an in-flight DB reconnect that outlived its timeout"
             )
 
+    async def aclose(self) -> None:
+        verbose_proxy_logger.debug("Disconnecting from Prisma")
+        try:
+            await self.stop_background_tasks()
+        finally:
+            await self.disconnect()
+
     async def stop_background_tasks(self) -> None:
         self._closing = True
         self._stop_engine_watcher()

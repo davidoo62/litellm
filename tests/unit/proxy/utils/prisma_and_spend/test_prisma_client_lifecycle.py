@@ -20,7 +20,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from litellm.proxy.utils import PrismaClient
-from litellm.repositories.database import Database
 
 
 @pytest.mark.asyncio
@@ -46,7 +45,7 @@ async def test_shutdown_waits_for_hung_request_reconnect_to_time_out(
             prisma_client.attempt_db_reconnect(reason="request", force=True, force_recreate=True)
         )
         await reconnecting.wait()
-        closing: Final = asyncio.create_task(Database(prisma=prisma_client).aclose())
+        closing: Final = asyncio.create_task(prisma_client.aclose())
         try:
             await asyncio.sleep(0)
             assert not closing.done()
@@ -71,7 +70,7 @@ async def test_shutdown_waits_for_hung_request_reconnect_to_time_out(
 async def test_shutdown_stops_waiting_for_a_reconnect_stuck_past_its_timeout(prisma_client: PrismaClient) -> None:
     await prisma_client._db_reconnect_lock.acquire()
     with patch.object(asyncio.get_running_loop(), "time", return_value=1000.0) as clock:
-        closing: Final = asyncio.create_task(Database(prisma=prisma_client).aclose())
+        closing: Final = asyncio.create_task(prisma_client.aclose())
         try:
             await asyncio.sleep(0)
             assert not closing.done()
@@ -567,3 +566,15 @@ async def test_start_view_setup_task_twice_keeps_the_first_task(prisma_client: P
         "second_is_first": second is first,
     }
     assert actual == {"first_is_task": True, "second_is_first": True}
+
+
+@pytest.mark.asyncio
+async def test_aclose_disconnects_even_when_stopping_background_tasks_fails() -> None:
+    prisma: Final = MagicMock()
+    prisma.stop_background_tasks = AsyncMock(side_effect=RuntimeError("watchdog failed"))
+    prisma.disconnect = AsyncMock()
+
+    with pytest.raises(RuntimeError, match="watchdog failed"):
+        await PrismaClient.aclose(prisma)
+
+    prisma.disconnect.assert_awaited_once()
